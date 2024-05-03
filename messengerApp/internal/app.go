@@ -2,9 +2,9 @@ package app
 
 import (
 	"database/sql"
+	"messengerApp/cmd/config"
 	"messengerApp/internal/app/repository"
 	"messengerApp/internal/app/service"
-	"messengerApp/cmd/config"
 )
 
 type App struct {
@@ -19,7 +19,7 @@ type App struct {
 	profileService service.ProfileService
 }
 
-func NewApp(db *sql.DB, cfg *config.Config) *App {
+func NewApp(db *sql.DB, cfg *config.ServerConfig) *App {
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
 	friendRepo := repository.NewFriendRepository(db)

@@ -1,4 +1,3 @@
-// Modify AuthHandler to use the AuthService interface methods
 package handlers
 
 import (
@@ -9,7 +8,7 @@ import (
 )
 
 type AuthHandler struct {
-	authService service.AuthService // Use the AuthService interface
+	authService service.AuthService
 }
 
 func NewAuthHandler(authService service.AuthService) *AuthHandler {
@@ -23,7 +22,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Call AuthService's Login method
 	token, err := h.authService.Login(loginRequest.Username, loginRequest.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
@@ -40,7 +38,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Call AuthService's Register method
 	if err := h.authService.Register(registerRequest.Username, registerRequest.Password); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 		return

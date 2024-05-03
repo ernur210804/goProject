@@ -5,3 +5,7 @@ database:
   user: postgres
   password: 210804Ernur
   dbname: golangProject
+
+server:
+  port: 8080
+

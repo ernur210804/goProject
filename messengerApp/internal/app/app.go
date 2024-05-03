@@ -1,12 +1,14 @@
 package app
 
 import (
-	"messengerApp/cmd/config"
+	"errors"
 
 	"database/sql"
+	"messengerApp/cmd/config" // Adjust import path if necessary
 	"messengerApp/internal/app/models"
 	"messengerApp/internal/app/repository"
 	"messengerApp/internal/app/service"
+	"messengerApp/internal/utils"
 )
 
 type App struct {
@@ -23,20 +25,69 @@ type App struct {
 
 // Login implements service.AuthService.
 func (a *App) Login(username string, password string) (string, error) {
-	panic("unimplemented")
+	// Retrieve the user by username from the repository
+	user, err := a.userRepo.FindByUsername(username)
+	if err != nil {
+		return "", err
+	}
+
+	// Check if the user exists and if the password matches
+	if user == nil || user.Password != password {
+		return "", errors.New("invalid credentials")
+	}
+
+	// Generate a token for the user
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
 // Register implements service.AuthService.
 func (a *App) Register(username string, password string) error {
-	panic("unimplemented")
+	// Check if the username already exists in the repository
+	existingUser, err := a.userRepo.FindByUsername(username)
+	if err != nil {
+		return err
+	}
+	if existingUser != nil {
+		return errors.New("username already exists")
+	}
+
+	// Create a new user with the provided username and password
+	user := &models.User{Username: username, Password: password}
+	err = a.userRepo.Create(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // RegisterUser implements service.AuthService.
 func (a *App) RegisterUser(username string, password string) (*models.User, error) {
-	panic("unimplemented")
+	// Check if the username already exists in the repository
+	existingUser, err := a.userRepo.FindByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser != nil {
+		return nil, errors.New("username already exists")
+	}
+
+	// Create a new user with the provided username and password
+	user := &models.User{Username: username, Password: password}
+	err = a.userRepo.Create(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
-func NewApp(db *sql.DB, cfg *config.Config) *App {
+func NewApp(db *sql.DB, cfg *config.ServerConfig) *App {
 	// Create user repository
 	userRepo := repository.NewUserRepository(db)
 

@@ -1,3 +1,4 @@
+// config.go
 package config
 
 import (
@@ -5,12 +6,6 @@ import (
 
 	"github.com/spf13/viper"
 )
-
-type Config struct {
-	Database *DatabaseConfig
-	Server   *ServerConfig
-	// Other configurations
-}
 
 type DatabaseConfig struct {
 	Host     string `yaml:"host"`
@@ -21,24 +16,28 @@ type DatabaseConfig struct {
 }
 
 type ServerConfig struct {
-	Port string
-	// Other server configuration parameters
+	Port string `yaml:"port"`
 }
 
-func LoadConfig() *Config {
+func LoadConfig() (*DatabaseConfig, *ServerConfig, error) {
 	viper.SetConfigName("config")
-	viper.AddConfigPath("cmd/config") // Adjust the path to your config directory
+	viper.AddConfigPath("config")
 	viper.SetConfigType("yaml")
 
-	var config Config
+	var dbConfig DatabaseConfig
+	var serverConfig ServerConfig
 
 	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error loading config file: %s", err))
+		return nil, nil, fmt.Errorf("fatal error loading config file: %s", err)
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
-		panic(fmt.Errorf("fatal error unmarshalling config file: %s", err))
+	if err := viper.UnmarshalKey("database", &dbConfig); err != nil {
+		return nil, nil, fmt.Errorf("fatal error unmarshalling database config: %s", err)
 	}
 
-	return &config
+	if err := viper.UnmarshalKey("server", &serverConfig); err != nil {
+		return nil, nil, fmt.Errorf("fatal error unmarshalling server config: %s", err)
+	}
+
+	return &dbConfig, &serverConfig, nil
 }

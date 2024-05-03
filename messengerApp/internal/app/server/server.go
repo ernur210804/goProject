@@ -1,3 +1,4 @@
+// server/server.go
 package server
 
 import (
@@ -11,16 +12,16 @@ import (
 type Server struct {
 	router      *gin.Engine
 	config      *config.ServerConfig
-	authService service.AuthService // Change to authService
+	authService service.AuthService
 }
 
-func NewServer(config *config.ServerConfig, authService service.AuthService) *Server { // Change the parameter name to authService
+func NewServer(config *config.ServerConfig, authService service.AuthService) *Server {
 	router := gin.Default()
 
 	server := &Server{
 		router:      router,
 		config:      config,
-		authService: authService, // Change to authService
+		authService: authService,
 	}
 
 	server.setupRoutes()
@@ -29,11 +30,14 @@ func NewServer(config *config.ServerConfig, authService service.AuthService) *Se
 }
 
 func (s *Server) Run() {
+	if s.config == nil || s.config.Port == "" {
+		panic("Server configuration is missing or invalid")
+	}
 	s.router.Run(":" + s.config.Port)
 }
 
 func (s *Server) setupRoutes() {
-	authHandler := handlers.NewAuthHandler(s.authService) // Pass authService directly
+	authHandler := handlers.NewAuthHandler(s.authService)
 
 	s.router.POST("/login", authHandler.Login)
 	s.router.POST("/register", authHandler.Register)

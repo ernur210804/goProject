@@ -18,20 +18,16 @@ type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-
-// AuthService represents the service layer interface for authentication-related operations
 type AuthService interface {
 	Login(username, password string) (string, error)
 	Register(username, password string) error
-	RegisterUser(username, password string) (*models.User, error) // Add RegisterUser method
+	RegisterUser(username, password string) (*models.User, error)
 }
 
-// authService represents the concrete implementation of the AuthService interface
 type authService struct {
 	userRepo repository.UserRepository
 }
 
-// NewAuthService creates a new instance of authService
 func NewAuthService(userRepo repository.UserRepository) AuthService {
 	return &authService{userRepo: userRepo}
 }
